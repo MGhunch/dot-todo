@@ -81,7 +81,7 @@ def get_jobs_from_airtable():
                 'update': update_summary or 'No updates yet',
                 'updateDue': update_due,
                 'stage': fields.get('Stage', ''),
-                'channelUrl': fields.get('Teams Channel URL', '#'),
+                'channelUrl': fields.get('Channel Url', ''),
                 'withClient': fields.get('With Client?', False)
             })
         
@@ -200,22 +200,28 @@ def build_job_html(job):
     job_number = job.get('jobNumber', '')
     job_name = job.get('jobName', '')
     update = job.get('update', 'No updates yet')
-    due_date = format_date_short(job.get('updateDue', ''))
+    due_date = job.get('updateDue', '')
     stage = job.get('stage', '')
     stage_icon = get_stage_icon(stage)
-    channel_url = job.get('channelUrl', '#')
+    channel_url = job.get('channelUrl', '')
+    
+    # Hyperlink the job title if channel URL exists
+    if channel_url and channel_url != '#':
+        job_title = f'<a href="{channel_url}" style="color: #333; text-decoration: none;">{job_number} — {job_name}</a>'
+    else:
+        job_title = f'{job_number} — {job_name}'
     
     return f'''
     <tr>
       <td style="padding: 15px 20px; border-bottom: 1px solid #eee;">
         <p style="margin: 0 0 5px 0; font-size: 16px; font-weight: bold; color: #333;">
-          {job_number} — {job_name}
+          {job_title}
         </p>
         <p style="margin: 0 0 8px 0; font-size: 14px; color: #666; line-height: 1.4;">
           {update}
         </p>
         <p style="margin: 0; font-size: 13px; color: #999;">
-          🕦 {due_date} · {stage_icon} {stage} · <a href="{channel_url}" style="color: #999; text-decoration: none;">🔗 Channel</a>
+          🕦 {due_date} · {stage_icon} {stage}
         </p>
       </td>
     </tr>'''
