@@ -67,11 +67,11 @@ def get_jobs_from_airtable():
         for record in records:
             fields = record.get('fields', {})
             
-            update_due = fields.get('Update due', '')
+            update_due = fields.get('Update due friendly', '')
             if isinstance(update_due, list):
                 update_due = update_due[0] if update_due else ''
             
-            update_summary = fields.get('Update', '')
+            update_summary = fields.get('Update Summary', '')
             if isinstance(update_summary, list):
                 update_summary = update_summary[0] if update_summary else ''
             
@@ -144,16 +144,16 @@ def format_date_short(date_str):
         return date_str
 
 
-def build_summary_html(summary):
-    """Build HTML for daily summary"""
-    if not summary:
+def build_summary_html(fun_fact):
+    """Build HTML for fun fact"""
+    if not fun_fact:
         return ''
     
     return f'''
     <tr>
       <td style="padding: 10px 20px 15px 20px;">
-        <p style="margin: 0; font-size: 14px; color: #333; line-height: 1.5; font-style: italic;">
-          {summary}
+        <p style="margin: 0; font-size: 14px; color: #333; line-height: 1.5;">
+          <strong>Fun Fact:</strong> <span style="font-style: italic;">{fun_fact}</span>
         </p>
       </td>
     </tr>'''
@@ -250,7 +250,9 @@ def build_other_projects_html(projects):
     for p in projects:
         job_number = p.get('jobNumber', '')
         job_name = p.get('jobName', '')
-        items += f'<li><strong style="color: #333;">{job_number}</strong> — {job_name}</li>'
+        update_due = p.get('updateDue', '')
+        due_str = f" — {update_due}" if update_due else ""
+        items += f'<li><strong style="color: #333;">{job_number}</strong> — {job_name}{due_str}</li>'
     
     return f'''
     <tr>
@@ -269,7 +271,7 @@ def build_other_projects_html(projects):
     </tr>'''
 
 
-def build_todo_email(summary, meetings, work_today, work_this_week, other_projects):
+def build_todo_email(fun_fact, meetings, work_today, work_this_week, other_projects):
     """Build complete To Do email HTML"""
     today = datetime.now().strftime('%A, %-d %B %Y')
     
@@ -306,7 +308,7 @@ def build_todo_email(summary, meetings, work_today, work_this_week, other_projec
       </td>
     </tr>
     
-    {build_summary_html(summary)}
+    {build_summary_html(fun_fact)}
     {build_meetings_html(meetings)}
     {build_section_html("WORK TODAY", work_today, "#ED1C24")}
     {build_section_html("WORK THIS WEEK", work_this_week, "#666666")}
@@ -347,25 +349,25 @@ def todo():
         claude_response = call_claude(meetings, jobs)
         
         if claude_response:
-            summary = claude_response.get('summary', '')
+            fun_fact = claude_response.get('funFact', '')
             processed_meetings = claude_response.get('meetings', [])
             work_today = claude_response.get('workToday', [])
             work_this_week = claude_response.get('workThisWeek', [])
             other_projects = claude_response.get('otherProjects', [])
         else:
             # Fallback if Claude fails
-            summary = ''
+            fun_fact = ''
             processed_meetings = []
             work_today = []
             work_this_week = []
             other_projects = [{'jobNumber': j['jobNumber'], 'jobName': j['jobName']} for j in jobs]
         
         # Build HTML
-        html = build_todo_email(summary, processed_meetings, work_today, work_this_week, other_projects)
+        html = build_todo_email(fun_fact, processed_meetings, work_today, work_this_week, other_projects)
         
         return jsonify({
             'html': html,
-            'summary': summary,
+            'funFact': fun_fact,
             'meetingsCount': len(processed_meetings),
             'jobsTodayCount': len(work_today),
             'jobsThisWeekCount': len(work_this_week),
