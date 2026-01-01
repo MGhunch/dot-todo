@@ -19,7 +19,7 @@ AIRTABLE_BASE_ID = 'app8CI7NAZqhQ4G1Y'
 AIRTABLE_PROJECTS_TABLE = 'Projects'
 
 # Load prompt
-with open('dot_todo_prompt.txt', 'r') as f:
+with open('prompt.txt', 'r') as f:
     TODO_PROMPT = f.read()
 
 # Stage icons mapping
