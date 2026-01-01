@@ -32,10 +32,18 @@ CALENDAR CLEANUP
 ----------------
 
 For each meeting, extract and format:
-- time: Format as "10.00 am" (not 24hr)
-- title: Clean, no FW:/RE: prefixes, max 40 chars
+- time: Format as "10.00 am" (not 24hr), bold in output
+- title: Title Case (not ALL CAPS), clean, no FW:/RE: prefixes, max 40 chars
 - location: Client name, "Teams", or physical location
 - duration: "1 hr", "30 mins", "1.5 hrs" etc.
+
+Output format for each meeting:
+**10.00 am** | Meeting Title - Location (duration)
+
+Example outputs:
+- **10.00 am** | Price Increase Review - One NZ (1 hr)
+- **2.30 pm** | Campaign Kickoff - Sky (30 mins)
+- **4.00 pm** | Team Standup - Teams (15 mins)
 
 EXCLUDE meetings with these keywords in the subject (case insensitive):
 - Focus time

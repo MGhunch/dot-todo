@@ -17,6 +17,62 @@ client = Anthropic(api_key=os.environ.get('ANTHROPIC_API_KEY'))
 AIRTABLE_API_KEY = os.environ.get('AIRTABLE_API_KEY')
 AIRTABLE_BASE_ID = 'app8CI7NAZqhQ4G1Y'
 AIRTABLE_PROJECTS_TABLE = 'Projects'
+AIRTABLE_UPDATES_TABLE = 'Updates'
+
+
+def get_last_update_dates():
+    """Fetch last update date for each job from Updates table"""
+    if not AIRTABLE_API_KEY:
+        return {}
+    
+    try:
+        headers = {
+            'Authorization': f'Bearer {AIRTABLE_API_KEY}',
+            'Content-Type': 'application/json'
+        }
+        
+        url = f"https://api.airtable.com/v0/{AIRTABLE_BASE_ID}/{AIRTABLE_UPDATES_TABLE}"
+        params = {
+            'fields[]': ['Job Number', 'Created time'],
+            'sort[0][field]': 'Created time',
+            'sort[0][direction]': 'desc'
+        }
+        
+        response = httpx.get(url, headers=headers, params=params, timeout=30.0)
+        response.raise_for_status()
+        
+        records = response.json().get('records', [])
+        
+        # Build dict of job_number -> most recent update date
+        last_updates = {}
+        for record in records:
+            fields = record.get('fields', {})
+            job_number = fields.get('Job Number', '')
+            created = fields.get('Created time', '')
+            
+            # Only keep the first (most recent) for each job
+            if job_number and job_number not in last_updates:
+                last_updates[job_number] = created
+        
+        return last_updates
+        
+    except Exception as e:
+        print(f"Updates table error: {e}")
+        return {}
+
+
+def is_stale(job_number, last_updates, days=10):
+    """Check if a job hasn't been updated in X days"""
+    last_update = last_updates.get(job_number, '')
+    if not last_update:
+        return True  # No updates = stale
+    
+    try:
+        last_date = datetime.strptime(last_update[:10], '%Y-%m-%d')
+        days_since = (datetime.now() - last_date).days
+        return days_since >= days
+    except:
+        return False
 
 # Load prompt
 with open('prompt.txt', 'r') as f:
@@ -54,6 +110,9 @@ def get_jobs_from_airtable():
             'Content-Type': 'application/json'
         }
         
+        # Get last update dates for stale check
+        last_updates = get_last_update_dates()
+        
         filter_formula = "{Status}='In Progress'"
         url = f"https://api.airtable.com/v0/{AIRTABLE_BASE_ID}/{AIRTABLE_PROJECTS_TABLE}"
         params = {'filterByFormula': filter_formula}
@@ -81,6 +140,9 @@ def get_jobs_from_airtable():
             if job_number and (job_number.endswith('000') or job_number.endswith('999') or job_number.endswith('998')):
                 continue
             
+            # Check if stale (no update in 10 days)
+            stale = is_stale(job_number, last_updates)
+            
             jobs.append({
                 'jobNumber': job_number,
                 'jobName': fields.get('Project Name', ''),
@@ -88,7 +150,8 @@ def get_jobs_from_airtable():
                 'updateDue': update_due,
                 'stage': fields.get('Stage', ''),
                 'channelUrl': fields.get('Channel Url', ''),
-                'withClient': fields.get('With Client?', False)
+                'withClient': fields.get('With Client?', False),
+                'stale': stale
             })
         
         return jobs
@@ -181,7 +244,7 @@ def build_meetings_html(meetings):
         
         rows += f'''
           <tr>
-            <td style="padding: 4px 0; color: #333;">{time} – {title} – {location}{duration_str}</td>
+            <td style="padding: 4px 0; color: #333;"><strong>{time}</strong> | {title} - {location}{duration_str}</td>
           </tr>'''
     
     return f'''
@@ -263,8 +326,11 @@ def build_other_projects_html(projects):
         job_number = p.get('jobNumber', '')
         job_name = p.get('jobName', '')
         update_due = p.get('updateDue', '')
+        stale = p.get('stale', False)
+        
+        stale_str = '❗ ' if stale else ''
         due_str = f" — {update_due}" if update_due else ""
-        items += f'<li><strong style="color: #333;">{job_number}</strong> — {job_name}{due_str}</li>'
+        items += f'<li>{stale_str}<strong style="color: #333;">{job_number}</strong> — {job_name}{due_str}</li>'
     
     return f'''
     <tr>
@@ -297,7 +363,11 @@ def build_todo_email(fun_fact, meetings, work_today, work_this_week, other_proje
     @media screen and (max-width: 600px) {{
       .wrapper {{
         width: 100% !important;
-        padding: 12px !important;
+        padding: 8px !important;
+      }}
+      .wrapper td {{
+        padding-left: 12px !important;
+        padding-right: 12px !important;
       }}
     }}
   </style>
