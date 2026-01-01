@@ -1,4 +1,5 @@
 from flask import Flask, request, jsonify
+import httpx
 import os
 from datetime import datetime, timedelta
 import re
@@ -7,6 +8,11 @@ app = Flask(__name__)
 
 # Header image URL
 HEADER_URL = 'https://mghunch.github.io/hunch-assets/Header_ToDo.png'
+
+# Airtable config
+AIRTABLE_API_KEY = os.environ.get('AIRTABLE_API_KEY')
+AIRTABLE_BASE_ID = 'app8CI7NAZqhQ4G1Y'
+AIRTABLE_PROJECTS_TABLE = 'Projects'
 
 # Stage icons mapping
 STAGE_ICONS = {
@@ -143,6 +149,100 @@ def get_stage_icon(stage):
     if not stage:
         return '📋'
     return STAGE_ICONS.get(stage.capitalize(), '📋')
+
+
+def get_working_days_from_now(days):
+    """Get date that is N working days from now (skipping weekends)"""
+    current = datetime.now().date()
+    added = 0
+    while added < days:
+        current += timedelta(days=1)
+        if current.weekday() < 5:  # Monday = 0, Friday = 4
+            added += 1
+    return current
+
+
+def get_jobs_from_airtable():
+    """Fetch all in-progress jobs from Airtable and sort by due date"""
+    if not AIRTABLE_API_KEY:
+        print("No Airtable API key configured")
+        return [], [], []
+    
+    try:
+        headers = {
+            'Authorization': f'Bearer {AIRTABLE_API_KEY}',
+            'Content-Type': 'application/json'
+        }
+        
+        # Get all In Progress jobs
+        filter_formula = "{Status}='In Progress'"
+        url = f"https://api.airtable.com/v0/{AIRTABLE_BASE_ID}/{AIRTABLE_PROJECTS_TABLE}"
+        params = {'filterByFormula': filter_formula}
+        
+        response = httpx.get(url, headers=headers, params=params, timeout=30.0)
+        response.raise_for_status()
+        
+        records = response.json().get('records', [])
+        
+        today = datetime.now().date()
+        tomorrow = today + timedelta(days=1)
+        end_of_week = get_working_days_from_now(4)
+        
+        jobs_today = []
+        jobs_this_week = []
+        other_projects = []
+        
+        for record in records:
+            fields = record.get('fields', {})
+            
+            # Get update due date
+            update_due_str = fields.get('Update due', '')
+            if isinstance(update_due_str, list):
+                update_due_str = update_due_str[0] if update_due_str else ''
+            
+            # Parse date
+            update_due = None
+            if update_due_str:
+                try:
+                    update_due = datetime.strptime(update_due_str[:10], '%Y-%m-%d').date()
+                except:
+                    pass
+            
+            # Get update summary
+            update_summary = fields.get('Update', '')
+            if isinstance(update_summary, list):
+                update_summary = update_summary[0] if update_summary else ''
+            
+            job = {
+                'jobNumber': fields.get('Job Number', ''),
+                'jobName': fields.get('Project Name', ''),
+                'update': update_summary or 'No updates yet',
+                'updateDue': update_due_str,
+                'stage': fields.get('Stage', ''),
+                'channelUrl': fields.get('Teams Channel URL', '#')
+            }
+            
+            # Sort into buckets
+            if update_due:
+                if update_due <= tomorrow:
+                    jobs_today.append(job)
+                elif update_due <= end_of_week:
+                    jobs_this_week.append(job)
+                else:
+                    other_projects.append(job)
+            else:
+                other_projects.append(job)
+        
+        # Sort each list by due date
+        jobs_today.sort(key=lambda x: x.get('updateDue', ''))
+        jobs_this_week.sort(key=lambda x: x.get('updateDue', ''))
+        other_projects.sort(key=lambda x: x.get('updateDue', ''))
+        
+        return jobs_today, jobs_this_week, other_projects
+        
+    except Exception as e:
+        print(f"Airtable error: {e}")
+        return [], [], []
 
 
 def build_meetings_html(meetings):
@@ -324,13 +424,13 @@ def build_todo_email(meetings, jobs_today, jobs_this_week, other_projects):
 def todo():
     """Generate To Do email HTML"""
     try:
-        data = request.get_json()
+        data = request.get_json() or {}
         
-        # Extract data from request
+        # Get meetings from request (sent by Power Automate)
         meetings = data.get('meetings', [])
-        jobs_today = data.get('jobsToday', [])
-        jobs_this_week = data.get('jobsThisWeek', [])
-        other_projects = data.get('otherProjects', [])
+        
+        # Get jobs from Airtable
+        jobs_today, jobs_this_week, other_projects = get_jobs_from_airtable()
         
         # Build HTML
         html = build_todo_email(meetings, jobs_today, jobs_this_week, other_projects)
