@@ -246,7 +246,7 @@ def build_meetings_html(meetings):
           <tr>
             <td style="padding: 4px 0; color: #333; font-weight: bold; white-space: nowrap; vertical-align: top; width: 80px;">{time}</td>
             <td style="padding: 4px 0 4px 10px; vertical-align: top;">
-              <span style="color: #333; font-weight: bold;">{title}</span><br>
+              <span style="color: #333; font-weight: bold; font-size: 16px;">{title}</span><br>
               <span style="color: #999; font-size: 13px;">{location}{duration_str}</span>
             </td>
           </tr>'''

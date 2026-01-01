@@ -72,7 +72,7 @@ FACT OF THE DAY
 
 Provide a genuinely interesting, topical fact to start the day.
 
-Write 1-2 sentences (max 30 words). 
+**Max 140 characters including spaces.** (Tweet-length)
 
 WHAT MAKES IT INTERESTING:
 - Counterintuitive: challenges what people assume ("Actually, the Great Wall isn't visible from space")
