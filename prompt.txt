@@ -59,27 +59,38 @@ LOCATION LOGIC:
 Sort meetings by start time.
 
 
-FUN FACT
---------
+FACT OF THE DAY
+---------------
 
-Instead of a daily summary, provide a topical fun fact to start the day.
+Provide a genuinely interesting, topical fact to start the day.
 
-Write 1-2 sentences (max 30 words). Something quirky, surprising, or delightful that connects to TODAY.
+Write 1-2 sentences (max 30 words). 
+
+WHAT MAKES IT INTERESTING:
+- Counterintuitive: challenges what people assume ("Actually, the Great Wall isn't visible from space")
+- Specific & concrete: real numbers, names, dates - not vague generalities
+- Human stories: the weird inventor, the accidental discovery, the unlikely connection
+- Useful or quotable: something worth sharing at lunch
+- Fresh angle: even if familiar topic, reveal something unexpected
+
+AVOID:
+- Generic facts everyone knows
+- Dry statistics without context
+- Anything that sounds like a textbook
+- "Did you know..." energy
 
 Make it topical by linking to:
 - Today's date (what happened on this day in history?)
 - The current month or season
 - A holiday, observance, or awareness day
 - Recent news or cultural moments
-- Something timely about the world right now
 
 Examples:
-- "On this day in 1985, the first .com domain was registered. It was symbolics.com, and it's still online."
-- "January is named after Janus, the Roman god of doorways - fitting for a month that opens the year."
-- "The word 'robot' turns 104 this month. It comes from the Czech word 'robota', meaning forced labour."
-- "Today is National Trivia Day. The word 'trivia' comes from Latin for 'three roads' - where people gathered to gossip."
+- "On this day in 1992, the Simpsons overtook the Flintstones as the longest-running animated series. It's now been on air longer than most of its viewers have been alive."
+- "January was added to the calendar around 700 BC. Before that, Romans just ignored winter - the year had no months for those 60 days."
+- "The @ symbol is 500+ years old. Medieval monks invented it as shorthand for 'at the rate of' when copying manuscripts."
 
-Pick something different each time. Make it feel like today matters.
+Pick something you'd genuinely want to tell someone. Make me look forward to tomorrow's fact.
 
 
 WORK TODAY SELECTION

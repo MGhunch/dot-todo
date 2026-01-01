@@ -75,8 +75,14 @@ def get_jobs_from_airtable():
             if isinstance(update_summary, list):
                 update_summary = update_summary[0] if update_summary else ''
             
+            job_number = fields.get('Job Number', '')
+            
+            # Skip jobs ending in 000, 999, 998 (retainers/special jobs)
+            if job_number and (job_number.endswith('000') or job_number.endswith('999') or job_number.endswith('998')):
+                continue
+            
             jobs.append({
-                'jobNumber': fields.get('Job Number', ''),
+                'jobNumber': job_number,
                 'jobName': fields.get('Project Name', ''),
                 'update': update_summary or 'No updates yet',
                 'updateDue': update_due,
@@ -153,7 +159,7 @@ def build_summary_html(fun_fact):
     <tr>
       <td style="padding: 10px 20px 15px 20px;">
         <p style="margin: 0; font-size: 14px; color: #333; line-height: 1.5;">
-          <strong>Fun Fact:</strong> <span style="font-style: italic;">{fun_fact}</span>
+          <strong>Fact of the day:</strong> <span style="font-style: italic;">{fun_fact}</span>
         </p>
       </td>
     </tr>'''
@@ -221,7 +227,7 @@ def build_job_html(job):
           {update}
         </p>
         <p style="margin: 0; font-size: 13px; color: #999;">
-          🕦 {due_date} · {stage_icon} {stage}
+          🕦 {due_date} · {stage}
         </p>
       </td>
     </tr>'''
