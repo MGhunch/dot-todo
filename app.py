@@ -157,13 +157,12 @@ def build_meetings_html(meetings):
         title = clean_meeting_title(meeting.get('subject', ''))
         duration = format_duration(meeting.get('duration', ''))
         
-        # Add duration in brackets if available
+        # Format: time - title - location (duration)
         duration_str = f" ({duration})" if duration else ""
         
         rows += f'''
           <tr>
-            <td style="padding: 4px 0; width: 140px; color: #999;">{time} – {location}</td>
-            <td style="padding: 4px 0;">{title}{duration_str}</td>
+            <td style="padding: 4px 0; color: #333;">{time} – {title} – {location}{duration_str}</td>
           </tr>'''
     
     return f'''
@@ -305,7 +304,8 @@ def build_todo_email(meetings, jobs_today, jobs_this_week, other_projects):
     <!-- Footer -->
     <tr>
       <td style="padding: 25px 20px; border-top: 1px solid #eee; text-align: center;">
-        <p style="margin: 0; font-size: 12px; color: #999;">To Do updated by Dot@hunch</p>
+        <p style="margin: 0 0 5px 0; font-size: 12px; color: #333; font-weight: bold;">Agency Intuition x Artificial Intelligence = AI²</p>
+        <p style="margin: 0; font-size: 12px; color: #999;">Got questions? Get in touch</p>
       </td>
     </tr>
     
