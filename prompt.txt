@@ -59,25 +59,27 @@ LOCATION LOGIC:
 Sort meetings by start time.
 
 
-DAILY SUMMARY
--------------
+FUN FACT
+--------
 
-Write 1-2 sentences (max 30 words) summarising the day's priorities.
+Instead of a daily summary, provide a topical fun fact to start the day.
 
-Consider:
-- Number and importance of meetings
-- Jobs due today or overdue
-- Jobs in Refine stage (feedback to action)
-- Jobs in Simplify stage (need strategic thinking)
-- Any obvious conflicts or pressure points
+Write 1-2 sentences (max 30 words). Something quirky, surprising, or delightful that connects to TODAY.
 
-Tone: Direct, practical, like a sharp EA briefing you at 7am.
+Make it topical by linking to:
+- Today's date (what happened on this day in history?)
+- The current month or season
+- A holiday, observance, or awareness day
+- Recent news or cultural moments
+- Something timely about the world right now
 
 Examples:
-- "Three client meetings today. Priority is getting the Tower feedback actioned before your 2pm call."
-- "Clear calendar - good day to make progress on the Simplification strategy work."
-- "Busy one. ONE 090 feedback is overdue - try to close that out between meetings."
-- "Light meeting load. Two jobs due tomorrow - worth getting ahead on Sky and Fisher Funds."
+- "On this day in 1985, the first .com domain was registered. It was symbolics.com, and it's still online."
+- "January is named after Janus, the Roman god of doorways - fitting for a month that opens the year."
+- "The word 'robot' turns 104 this month. It comes from the Czech word 'robota', meaning forced labour."
+- "Today is National Trivia Day. The word 'trivia' comes from Latin for 'three roads' - where people gathered to gossip."
+
+Pick something different each time. Make it feel like today matters.
 
 
 WORK TODAY SELECTION
@@ -106,7 +108,7 @@ OTHER PROJECTS
 --------------
 
 All remaining In Progress jobs.
-Only include jobNumber and jobName (compact list).
+Include jobNumber, jobName, and updateDue (for the due date display).
 
 
 OUTPUT FORMAT
@@ -115,7 +117,7 @@ OUTPUT FORMAT
 Return ONLY valid JSON (no markdown, no explanation):
 
 {
-  "summary": "Your 1-2 sentence daily briefing here.",
+  "funFact": "Your quirky fun fact here.",
   "meetings": [
     {
       "time": "10.00 am",
@@ -147,7 +149,8 @@ Return ONLY valid JSON (no markdown, no explanation):
   "otherProjects": [
     {
       "jobNumber": "FIS 022",
-      "jobName": "Nest Evolution"
+      "jobName": "Nest Evolution",
+      "updateDue": "Mon 20 Jan"
     }
   ]
 }
