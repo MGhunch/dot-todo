@@ -222,7 +222,7 @@ def build_summary_html(fun_fact):
     <tr>
       <td style="padding: 10px 20px 15px 20px;">
         <p style="margin: 0; font-size: 14px; color: #333; line-height: 1.5;">
-          <strong>Fact of the day:</strong> <span style="font-style: italic;">{fun_fact}</span>
+          <strong>#FOTD:</strong> <span style="font-style: italic;">{fun_fact}</span>
         </p>
       </td>
     </tr>'''
@@ -244,7 +244,11 @@ def build_meetings_html(meetings):
         
         rows += f'''
           <tr>
-            <td style="padding: 4px 0; color: #333;"><strong>{time}</strong> | {title} - {location}{duration_str}</td>
+            <td style="padding: 4px 0; color: #333; font-weight: bold; white-space: nowrap; vertical-align: top; width: 80px;">{time}</td>
+            <td style="padding: 4px 0 4px 10px; vertical-align: top;">
+              <span style="color: #333; font-weight: bold;">{title}</span><br>
+              <span style="color: #999; font-size: 13px;">{location}{duration_str}</span>
+            </td>
           </tr>'''
     
     return f'''
