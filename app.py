@@ -378,7 +378,7 @@ def build_todo_email(fun_fact, meetings, work_today, work_this_week, other_proje
 </head>
 <body style="margin: 0; padding: 20px; font-family: Calibri, Arial, sans-serif; background-color: #f5f5f5; width: 100% !important;">
   
-  <table class="wrapper" width="600" cellpadding="0" cellspacing="0" style="width: 600px; max-width: 100%; margin: 0 auto; background-color: #ffffff;">
+  <table class="wrapper" width="600" cellpadding="0" cellspacing="0" style="width: 600px; max-width: 100%; margin: 0; background-color: #ffffff;">
     
     <!-- Header -->
     <tr>
